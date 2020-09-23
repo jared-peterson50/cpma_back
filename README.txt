@@ -1,15 +1,12 @@
 code from devistry
 https://www.youtube.com/watch?v=4_ZiJGY5F38&list=PLJM1tXwlGdaf57oUx0rIqSW668Rpo_7oU
 ******IMPORTANT**********
-my pasword is shown here change before sharing
 ip is set to come from my own ip. change before putting on AWS
 *************************
 
 goto mongo atlas setup new cluster copy the connection from application and paste code into variable
 create .env file
 
-MONGODB_CONNECTION_STRING=mongodb+srv://test:Megadeth1!@cluster0.3tudk.mongodb.net/<dbname>?retryWrites=true&w=majority
-JWT_SECRET=whatinthewld
 
 //test with postman
 POST http://localhost:5000/users/register
