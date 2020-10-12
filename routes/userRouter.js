@@ -52,6 +52,7 @@ router.post("/register", async (req, res) => {
     //const savedUser = await newUser.save();
     //remove the password from here
     const saveUser = await newUser.save();
+    //console.log(saveUser);
     res.json(saveUser);
 
   } catch (err) {
@@ -106,25 +107,25 @@ router.delete("/delete", auth, async (req, res) => {
 });
 
 
+
 router.post("/tokenIsValid", async (req, res) => {
   try {
-    console.log("tokenisvalid ran");
-    //this is the dumb way to do it but i cant get the token out of the object
-    var temp = JSON.stringify(req.body.headers);
-    const token = temp.substring(17,temp.length-2)
-    //console.log(token);
+    const token = req.header("x-auth-token");
     if (!token) return res.json(false);
-    //if it is a valid JWT it will return the _id of the user in the database
+
     const verified = jwt.verify(token, process.env.JWT_SECRET);
     if (!verified) return res.json(false);
+
     const user = await User.findById(verified.id);
     if (!user) return res.json(false);
+
     return res.json(true);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+//returns 
 router.get("/userList", auth, async (req, res) => {
   User.find(function (err, users) {
     var userMap = {};
@@ -136,11 +137,7 @@ router.get("/userList", auth, async (req, res) => {
     console.log(err);
   });
 });
-
-
-
-
-/* these are not used yet
+//from app
 router.get("/", auth, async (req, res) => {
   const user = await User.findById(req.user);
   res.json({
@@ -148,15 +145,4 @@ router.get("/", auth, async (req, res) => {
     id: user._id,
   });
 });
-
-//just by passing the token only into header no body
-router.get("/admin", authAdmin, async (req, res) => {
-  const user = await User.findById(req.user);
-  res.json({
-    displayName: user.displayName,
-    id: user._id,
-    role: user.role,
-  });
-});
-*/
 module.exports = router;
