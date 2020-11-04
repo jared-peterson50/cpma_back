@@ -1,4 +1,5 @@
 const express = require("express");
+const fileUpload = require('express-fileupload');
 const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
@@ -29,4 +30,5 @@ mongoose.connect('mongodb://localhost:27017/test',
 
 // set up routes
 
+app.use(fileUpload());
 app.use("/users", require("./routes/userRouter"));

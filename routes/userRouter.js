@@ -7,6 +7,7 @@ const auth = require("../middleware/auth");
 const authAdmin = require('../middleware/authAdmin');
 const User = require("../models/userModel");
 const admin_access = require('../middleware/adminList');
+//const uploadFile = require('../routes/fileUpload');
 
 
 router.post("/register", async (req, res) => {
@@ -145,4 +146,23 @@ router.get("/", auth, async (req, res) => {
     id: user._id,
   });
 });
+
+// Upload Endpoint
+router.post('/upload', (req, res) => {
+if (req.files === null) {
+  return res.status(400).json({ msg: 'No file uploaded' });
+}
+
+const file = req.files.file;
+//move it to the root folder/uploads
+file.mv(`${__dirname}/../uploads/${file.name}`, err => {
+  if (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+  res.json({ fileName: file.name, filePath: `/uploads/${file.name}` });
+});
+});
+
+
 module.exports = router;
