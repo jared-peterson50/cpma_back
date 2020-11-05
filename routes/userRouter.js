@@ -166,10 +166,22 @@ file.mv(`${__dirname}/../uploads/${file.name}`, err => {
 
 //coffee order for team
 router.post("/teamorder", async (req, res) => {
-  console.log("in form");
+  
   try {
       const temp = req.body;
+      console.log("printing form data json")
       console.log(temp);
+      console.log("printing csv data converted to json")
+      //need to get csv file and conver to json object so we have apples to apples
+      const csvFilePath=(__dirname + '\\..\\uploads\\admin_upload.csv');
+      console.log(csvFilePath);
+      const csv=require('csvtojson')
+      csv()
+      .fromFile(csvFilePath)
+      .then((jsonObj)=>{
+          console.log(jsonObj);
+          //print the data to console
+      })
     return res.json({msg: "nice job"});
   } catch (err) {
     res.status(500).json({ error: err.message });
