@@ -147,7 +147,7 @@ router.get("/", auth, async (req, res) => {
   });
 });
 
-// Upload Endpoint
+// Upload Endpoint for Admin
 router.post('/upload', (req, res) => {
 if (req.files === null) {
   return res.status(400).json({ msg: 'No file uploaded' });
@@ -162,6 +162,18 @@ file.mv(`${__dirname}/../uploads/${file.name}`, err => {
   }
   res.json({ fileName: file.name, filePath: `/uploads/${file.name}` });
 });
+});
+
+//coffee order for team
+router.post("/teamorder", async (req, res) => {
+  console.log("in form");
+  try {
+      const temp = req.body;
+      console.log(temp);
+    return res.json({msg: "nice job"});
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 
