@@ -168,21 +168,49 @@ file.mv(`${__dirname}/../uploads/${file.name}`, err => {
 router.post("/teamorder", async (req, res) => {
   
   try {
+      var total_points=0; //decare up here is its remains in scope to be returned
       const temp = req.body;
-      console.log("printing form data json")
-      console.log(temp);
-      console.log("printing csv data converted to json")
-      //need to get csv file and conver to json object so we have apples to apples
+      //console.log("printing form data json")
+      //console.log(temp);
+      var team_order_values = Object.values(temp); //array containing only values no keys
+
+      //console.log("printing csv data converted to json")
       const csvFilePath=(__dirname + '\\..\\uploads\\admin_upload.csv');
-      console.log(csvFilePath);
+      //console.log(csvFilePath);
       const csv=require('csvtojson')
-      csv()
+      //this is async we need to await it because we are returning a value before the process completes
+      await csv()
       .fromFile(csvFilePath)
       .then((jsonObj)=>{
-          console.log(jsonObj);
+          /* game logic. We have coffee type, price, quantity ordered and demand. Demand is unkown to
+          the player. The Demand is set in the csv file by the admin. When a team sets the quantity ordered
+          it will be compared against demand. The closest to value to the demand is desirable. If a player
+          gets with 20% of the demand that is 100 points. If within 50% its 50 points. If
+          worse than 50% zero points are given. There are 5 coffees a max points of 500 can be obtained
+          */
+          //console.log(jsonObj);
+          //console.log(jsonObj[0]);
+          //console.log(jsonObj[0].demand);
+          //console.log(team_order_values[0]);
+          
+          //make for loop that checks if the user value is +- within the 20% or 50% range
+          for(var i = 0; i < 5; i++)
+          {
+            var lower = jsonObj[i].demand * .8;
+            var upper = jsonObj[i].demand * 1.2;
+            var min = jsonObj[i].demand *.5;
+            var max = jsonObj[i].demand * 1.5;
+            if(team_order_values[i] > lower && team_order_values[i] < upper)
+              total_points += 100;
+            else if(team_order_values[i] > min && team_order_values[i] < max)
+              total_points += 50;
+          }
+            console.log("total points " + total_points);
           //print the data to console
       })
-    return res.json({msg: "nice job"});
+      console.log("final printing")
+    
+    return res.json({msg:total_points});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
