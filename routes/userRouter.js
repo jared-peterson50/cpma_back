@@ -9,6 +9,8 @@ const User = require("../models/userModel");
 const admin_access = require('../middleware/adminList');
 //const uploadFile = require('../routes/fileUpload');
 
+//test global variable
+var global_period = 0;
 
 router.post("/register", async (req, res) => {
   try {
@@ -42,6 +44,10 @@ router.post("/register", async (req, res) => {
       role = "admin";
     else 
       role = "user";
+      //add period and score into DB
+      var current_period = 0;
+      var current_period_score = 0;
+      var total_score = 0;
     const newUser = new User({
       email,
       password: passwordHash,
@@ -49,6 +55,10 @@ router.post("/register", async (req, res) => {
       teamName,
       teamNumber,
       role,
+      current_period,
+      current_period_score,
+      total_score
+      
     });
     //const savedUser = await newUser.save();
     //remove the password from here
@@ -168,6 +178,7 @@ file.mv(`${__dirname}/../uploads/${file.name}`, err => {
 router.post("/teamorder", async (req, res) => {
   
   try {
+      
       var total_points=0; //decare up here is its remains in scope to be returned
       const temp = req.body;
       //console.log("printing form data json")
@@ -176,7 +187,8 @@ router.post("/teamorder", async (req, res) => {
 
       //console.log("printing csv data converted to json")
       const csvFilePath=(__dirname + '\\..\\uploads\\admin_upload.csv');
-      //console.log(csvFilePath);
+      const csvFilePathONLINE=(__dirname + '//..//uploads//admin_upload.csv');
+      console.log(csvFilePath);
       const csv=require('csvtojson')
       //this is async we need to await it because we are returning a value before the process completes
       await csv()
@@ -209,12 +221,35 @@ router.post("/teamorder", async (req, res) => {
           //print the data to console
       })
       console.log("final printing")
-    
+      //add the value to the database before returning the score
+      console.log(req.headers.id);
+      const user = await User.findById(req.headers.id);
+      user.current_period=global_period;
+      user.current_period_score=total_points;
+      const savedUser = await user.save();
+      console.log(savedUser);
+      //console.log(user);
+      
+
     return res.json({msg:total_points});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+// set current period admin
+router.post('/periodset', (req, res) => {
+  global_period = req.body.period;
+  console.log("in set period");
+  console.log(global_period);
+
+  //move it to the root folder/uploads
+  res.json({msg: 'you did it'});
+  });
+
+
+
 
 
 module.exports = router;
