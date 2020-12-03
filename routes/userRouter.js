@@ -137,6 +137,20 @@ router.get("/userList", auth, async (req, res) => {
     console.log(err);
   });
 });
+
+router.get("/teamList", async (req, res) => {
+  User.find(function (err, users) {
+    var userMap = {};
+    users.forEach(function(user) {
+      userMap[user._id] = user;
+    });
+    console.log(userMap)
+    alert("Stop")
+    res.send(userMap);  
+  if(err)
+    console.log(err);
+  });
+});
 //from app
 router.get("/", auth, async (req, res) => {
   const user = await User.findById(req.user);
@@ -145,4 +159,5 @@ router.get("/", auth, async (req, res) => {
     id: user._id,
   });
 });
+
 module.exports = router;
