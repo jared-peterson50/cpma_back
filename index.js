@@ -5,7 +5,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 // set up express
-
+console.log("updated 12-7-20");
 const app = express();
 app.use(express.json());
 app.use(cors());
