@@ -7,9 +7,8 @@ const userSchema = new mongoose.Schema({
   teamName: {type: String, required: true },
   teamNumber: {type: String, required: true },
   role:{ type: String},
-  current_period: {type: Number},
-  current_period_score: {type: Number},
-  total_score: {type:Number}
+  total_score: {type:Number},
+  arr:{type: Array,'default': [0, 0, 0, 0, 0]} //5 periods
 });
 
 module.exports = User = mongoose.model("user", userSchema);

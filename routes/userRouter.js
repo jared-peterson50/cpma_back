@@ -164,9 +164,13 @@ if (req.files === null) {
 }
 
 const file = req.files.file;
+console.log("testing upload directory the dir name and file name");
+console.log(__dirname);
+console.log(file.name);
 //move it to the root folder/uploads
 file.mv(`${__dirname}/../uploads/${file.name}`, err => {
   if (err) {
+    console.log("error in upload mv");
     console.error(err);
     return res.status(500).send(err);
   }
@@ -176,19 +180,15 @@ file.mv(`${__dirname}/../uploads/${file.name}`, err => {
 
 //coffee order for team
 router.post("/teamorder", async (req, res) => {
-  
   try {
-      
-      var total_points=0; //decare up here is its remains in scope to be returned
+      var current_period_points=0; //decare up here is its remains in scope to be returned
       const temp = req.body;
-      //console.log("printing form data json")
-      //console.log(temp);
       var team_order_values = Object.values(temp); //array containing only values no keys
+      const csvFilePath=(__dirname + '//..//uploads//admin_upload.csv');
+      //const csvFilePath=(__dirname + '\\..\\uploads\\admin_upload.csv');
 
-      //console.log("printing csv data converted to json")
-      const csvFilePath=(__dirname + '\\..\\uploads\\admin_upload.csv');
-      const csvFilePathONLINE=(__dirname + '//..//uploads//admin_upload.csv');
-      console.log(csvFilePath);
+      const csvFilePathONLINE=(__dirname + '//..//uploads//admin_upload.csv'); //make sure and change this
+      //console.log(csvFilePath);
       const csv=require('csvtojson')
       //this is async we need to await it because we are returning a value before the process completes
       await csv()
@@ -200,10 +200,6 @@ router.post("/teamorder", async (req, res) => {
           gets with 20% of the demand that is 100 points. If within 50% its 50 points. If
           worse than 50% zero points are given. There are 5 coffees a max points of 500 can be obtained
           */
-          //console.log(jsonObj);
-          //console.log(jsonObj[0]);
-          //console.log(jsonObj[0].demand);
-          //console.log(team_order_values[0]);
           
           //make for loop that checks if the user value is +- within the 20% or 50% range
           for(var i = 0; i < 5; i++)
@@ -213,25 +209,30 @@ router.post("/teamorder", async (req, res) => {
             var min = jsonObj[i].demand *.5;
             var max = jsonObj[i].demand * 1.5;
             if(team_order_values[i] > lower && team_order_values[i] < upper)
-              total_points += 100;
+            current_period_points += 100;
             else if(team_order_values[i] > min && team_order_values[i] < max)
-              total_points += 50;
+            current_period_points += 50;
           }
-            console.log("total points " + total_points);
-          //print the data to console
       })
-      console.log("final printing")
+
       //add the value to the database before returning the score
-      console.log(req.headers.id);
       const user = await User.findById(req.headers.id);
-      user.current_period=global_period;
-      user.current_period_score=total_points;
+
+
+      user.arr[global_period]=current_period_points;
+      user.markModified('arr'); //have to add this when updating the array so mongoDB knows its updated
+      //mongoDB wouldn't know its updated using the old [indexof] method so tell it its modified
+      
+      //tally up the total in the array
+      var total=0;
+      user.arr.forEach(element=>{
+        total+= element
+      })
+      user.total_score=total;
+
       const savedUser = await user.save();
       console.log(savedUser);
-      //console.log(user);
-      
-
-    return res.json({msg:total_points});
+    return res.json({msg:current_period_points});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -239,17 +240,11 @@ router.post("/teamorder", async (req, res) => {
 
 
 // set current period admin
-router.post('/periodset', (req, res) => {
+router.post('/periodset', async(req, res) => {
   global_period = req.body.period;
   console.log("in set period");
-  console.log(global_period);
 
-  //move it to the root folder/uploads
-  res.json({msg: 'you did it'});
+  res.json({msg: 'you set the period'});
   });
-
-
-
-
 
 module.exports = router;
